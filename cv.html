@@ -18,22 +18,24 @@
     />
   </head>
   <body>
-    <!-- Your content goes here -->
-    <!-- <header class="header"> -->
-    <!--   <nav class="nav-header"> -->
-    <!--     <div class="nav-header__item">Home</div> -->
-    <!--     <div class="nav-header__item">About</div> -->
-    <!--     <div class="nav-header__item">Contact</div> -->
-    <!--   </nav> -->
-    <!-- </header> -->
+    <header class="header">
+      <nav class="nav-header">
+        <div class="nav-header__item">
+          <a href="/">Accueil</a>
+        </div>
+        <div class="nav-header__item">
+          <a href="/projects.html">Projets</a>
+        </div>
+      </nav>
+    </header>
 
-    <main class="content">
+    <main>
       <div class="header">
         <!-- <div class="nav-header"> -->
         <!--   <div class="nav-header__item">Profil</div> -->
         <!-- </div> -->
       </div>
-      <div class="content">
+      <div class="content-cv">
         <div class="content__profil">
           <img src="picture.png" alt="photo profil" />
           <h1 id="name">Idriss Mortadi</h1>
@@ -143,6 +145,20 @@
                 Prédiction des compositions des métaux à partir des spectres
                 chimiques.
               </p>
+              <a
+                class="read-more-btn"
+                id="button-3"
+                onclick="toggleContent('content-3','button-3')"
+                >Plus d'informations</a
+              >
+              <div class="more-content" id="content-3">
+                <iframe
+                  src="content/stage_iumtek.html"
+                  width="100%"
+                  style="border: none"
+                  height="500px"
+                ></iframe>
+              </div>
             </div>
 
             <div class="content__experiences__exp">
@@ -219,6 +235,7 @@
               <h2>2019 - 2021 Classes préparatoires</h2>
               <p>Lycée Al-Zahrawi (Rabat, Maroc)</p>
               <p>MPSI-MP*</p>
+            </div>
             </div>
           </div>
         </div>
