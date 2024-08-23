@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Idriss MORTADI</title>
+
+    <!-- Link to CSS (replace 'style.css' with your actual stylesheet path) -->
+    <link rel="stylesheet" href="../style.css" />
+
+    <!-- Optional: Include any external fonts or libraries -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/katex@0.16.7/dist/katex.min.css"
+    />
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/katex@0.16.7/dist/katex.min.js"
+    ></script>
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/katex@0.16.7/dist/contrib/auto-render.min.js"
+    ></script>
+    <link href="../libraries/prism.css" rel="stylesheet" />
+  </head>
+  <body>
+    <script src="../libraries/prism.js"></script>
+    <header class="header">
+      <nav class="nav-header">
+        <div class="nav-header__item">
+          <a href="/">Home</a>
+        </div>
+        <div class="nav-header__item">
+          <a href="/cv.html">CV</a>
+        </div>
+        <div class="nav-header__item">
+          <a href="/projects.html">Projects</a>
+        </div>
+      </nav>
+    </header>
+
+    <main
+      style="
+        max-width: 800px;
+        display: flex;
+        justify-content: center;
+        flex-direction: column;
+        margin: auto;
+        padding: 30px;
+      "
+    >
+      <h2 id="exploring-the-mandelbrot-fractal-a-c-project">
+        Exploring the Mandelbrot Fractal: A C++ Project
+      </h2>
+      <h3 id="introduction">Introduction</h3>
+      <p>
+        In this post, I'll take you through a project where I combined C++ with
+        SFML (Simple and Fast Multimedia Library) to create a real-time
+        Mandelbrot fractal visualizer. The Mandelbrot fractal is a fascinating
+        mathematical object that produces intricate and infinitely complex
+        patterns. By iterating a simple equation over complex numbers, we can
+        visualize the boundary of this fractal, which is often described as "the
+        edge of chaos."
+        <br /><br />
+        The goal of this project was not only to explore the beauty of the
+        Mandelbrot set but also to deepen my understanding of C++ by working
+        with SFML, a powerful library for handling graphics, windowing, and user
+        input. Throughout this guide, I'll explain how I implemented the
+        Mandelbrot fractal, rendered it on the screen, and enabled user
+        interaction to explore different parts of the fractal in real time.
+      </p>
+      <video width="100%" height="auto" controls>
+        <source src="videos/2024-08-23 08-58-35.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+
+      <h2>What I Have Learned</h2>
+      <p>
+        This project provided a deep dive into several important concepts in
+        both C++ and computer graphics. Here's what I learned:
+      </p>
+
+      <ul>
+        <li>
+          <strong>Complex Number Manipulation:</strong> Working with complex
+          numbers in C++ allowed me to explore how mathematical concepts can be
+          directly applied in programming. Understanding how to map pixels to
+          points in the complex plane was crucial for generating the Mandelbrot
+          fractal.
+        </li>
+        <li>
+          <strong>Graphics Programming with SFML:</strong> SFML proved to be an
+          excellent library for handling graphics in C++. I learned how to
+          create and manipulate textures, sprites, and views, and how to
+          efficiently update the display based on user input.
+        </li>
+        <li>
+          <strong>User Interaction Handling:</strong> Implementing keyboard
+          controls for panning and zooming taught me how to create interactive
+          applications. I learned how to process input events in real time and
+          update the visual output accordingly.
+        </li>
+        <li>
+          <strong>Performance Considerations:</strong> Calculating the
+          Mandelbrot set can be computationally intensive. I learned how to
+          optimize the rendering process by limiting the number of iterations
+          and using efficient data structures to handle pixel data.
+        </li>
+        <li>
+          <strong>Memory Management in C++:</strong> Dynamically allocating
+          memory for the pixel array and ensuring that it was properly
+          deallocated taught me the importance of managing resources in C++ to
+          avoid memory leaks.
+        </li>
+      </ul>
+
+      <p>
+        Overall, this project was a fantastic learning experience that allowed
+        me to apply both mathematical concepts and practical programming skills
+        to create a visually interesting and interactive application.
+      </p>
+      <h2>Setting Up the Project</h2>
+      <p>
+        The first step in the project was to include the necessary libraries and
+        define some constants. We used
+        <code>#include &lt;SFML/Graphics.hpp&gt;</code> for graphics handling
+        and <code>#include &lt;complex&gt;</code> for working with complex
+        numbers. The constants defined the window size, color channels (RGBA),
+        the maximum number of iterations for the Mandelbrot calculation, and the
+        movement and zoom speed.
+      </p>
+
+      <pre><code class="language-cpp">#define WIDTH 800
+#define HEIGHT 600
+#define COLOR_CHANNELS 4 // RGBA
+#define MAX_ITER 500
+#define MOVE_SPEED 10
+#define ZOOM_LEVEL 0.05
+</code></pre>
+
+      <h2>Understanding the Mandelbrot Calculation</h2>
+      <p>
+        The Mandelbrot set is calculated by iterating over each pixel, mapping
+        it to a point in the complex plane, and determining if it belongs to the
+        set. This is done using the <code>calculateMandelbrot</code> function.
+        We initialize each pixel's real and imaginary parts based on its
+        position and check if the sequence of values escapes to infinity within
+        the maximum number of iterations. The results determine the color of
+        each pixel.
+      </p>
+
+      <pre><code class="language-cpp">void calculateMandelbrot(sf::Uint8 *pixels, double centerX, double centerY,
+                         double X, double Y) {
+    double scale_real = X / WIDTH;
+    double scale_imag = Y / HEIGHT;
+
+    for (int py = 0; py &lt; HEIGHT; ++py) {
+        for (int px = 0; px &lt; WIDTH; ++px) {
+            double real = centerX + (px - WIDTH / 2.0) * scale_real;
+            double imag = centerY + (py - HEIGHT / 2.0) * scale_imag;
+
+            std::complex&lt;double&gt; c(real, imag);
+            std::complex&lt;double&gt; z(0.0, 0.0);
+            int iter = 0;
+
+            while (std::abs(z) &lt;= 2.0 && iter &lt; MAX_ITER) {
+                z = z * z + c;
+                ++iter;
+            }
+
+            int pixelIndex = (py * WIDTH + px) * COLOR_CHANNELS;
+
+            if (iter &lt; MAX_ITER) {
+                pixels[pixelIndex] = iter % 256; // Red channel
+                pixels[pixelIndex + 1] = (iter * 2) % 256; // Green channel
+                pixels[pixelIndex + 2] = (iter * 3) % 256; // Blue channel
+                pixels[pixelIndex + 3] = 255; // Alpha channel
+            } else {
+                pixels[pixelIndex] = 0;
+                pixels[pixelIndex + 1] = 0;
+                pixels[pixelIndex + 2] = 0;
+                pixels[pixelIndex + 3] = 255;
+            }
+        }
+    }
+}
+</code></pre>
+
+      <h2>Rendering the Fractal with SFML</h2>
+      <p>
+        To display the Mandelbrot fractal, we use an SFML texture to hold the
+        pixel data and a sprite to render it. The initial setup involves
+        creating a pixel array, setting up the texture, and positioning the
+        sprite at the center of the window. The <code>sf::RenderWindow</code> is
+        used to manage the window where the fractal will be displayed.
+      </p>
+
+      <pre><code class="language-cpp">sf::Uint8 *pixels = new sf::Uint8[WIDTH * HEIGHT * COLOR_CHANNELS];
+sf::Texture texture;
+texture.create(WIDTH, HEIGHT);
+texture.update(pixels);
+
+sf::Sprite sprite(texture);
+sprite.setOrigin(WIDTH / 2.0, HEIGHT / 2.0);
+sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "Mandelbrot Fractal");
+sf::View view;
+view.reset(sf::FloatRect(0, 0, WIDTH, HEIGHT));
+window.setFramerateLimit(30);
+</code></pre>
+
+      <h2>Handling User Interaction</h2>
+      <p>
+        User interaction is a key part of exploring the fractal. The code
+        supports panning (using the arrow keys or ZQSD) and zooming (using the A
+        and E keys). When space bar is pressed, the Mandelbrot set is
+        recalculated, and the texture is updated to reflect the new view.
+      </p>
+
+      <pre><code class="language-cpp">if (sf::Keyboard::isKeyPressed(sf::Keyboard::Z)) {
+    view.move(0, -MOVE_SPEED * currentZoom);
+}
+if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
+    view.move(0, MOVE_SPEED * currentZoom);
+}
+if (sf::Keyboard::isKeyPressed(sf::Keyboard::Q)) {
+    view.move(-MOVE_SPEED * currentZoom, 0);
+}
+if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
+    view.move(MOVE_SPEED * currentZoom, 0);
+}
+if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
+    currentZoom *= 1 + ZOOM_LEVEL;
+    view.zoom(1 + ZOOM_LEVEL);
+}
+if (sf::Keyboard::isKeyPressed(sf::Keyboard::E)) {
+    currentZoom *= 1 - ZOOM_LEVEL;
+    view.zoom(1 - ZOOM_LEVEL);
+}
+if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
+    centerX = (view.getCenter().x - WIDTH / 2.0) * X / WIDTH;
+    centerY = (view.getCenter().y - HEIGHT / 2.0) * Y / HEIGHT;
+    calculateMandelbrot(pixels, centerX, centerY, X * currentZoom,
+                        Y * currentZoom);
+    texture.update(pixels);
+    sprite.setPosition(view.getCenter().x, view.getCenter().y);
+    sprite.setScale(currentZoom, currentZoom);
+}
+</code></pre>
+
+      <h2>Putting It All Together</h2>
+      <p>
+        The final part of the program is the main loop, which keeps the window
+        open, processes user input, and redraws the fractal. The loop checks for
+        events, updates the view, and ensures that the sprite representing the
+        fractal is correctly positioned and scaled based on user actions.
+      </p>
+
+      <pre><code class="language-cpp">while (window.isOpen()) {
+    sf::Event event;
+    while (window.pollEvent(event)) {
+        if (event.type == sf::Event::Closed)
+            window.close();
+    }
+
+    // Update view and sprite
+    window.clear();
+    window.setView(view);
+    window.draw(sprite);
+    window.display();
+}
+</code></pre>
+      <p>
+        Don't forget to delete the pixel array after closing the window to avoid
+        memory leaks:
+      </p>
+
+      <pre><code class="language-cpp">delete[] pixels;</code></pre>
+      <h2>Performance Considerations</h2>
+      <p>
+        Calculating the Mandelbrot set is inherently computationally intensive
+        because it involves performing numerous complex number operations for
+        each pixel on the screen. For every pixel, the algorithm must determine
+        if the corresponding point in the complex plane belongs to the
+        Mandelbrot set by iterating a mathematical formula, which can be
+        computationally demanding.
+      </p>
+      <p>
+        <strong>Limiting the Number of Iterations</strong><br />One of the
+        primary performance optimizations is limiting the number of iterations
+        (MAX_ITER). This parameter dictates how many times the formula is
+        applied to check if a point escapes to infinity or remains bounded.
+        While increasing MAX_ITER can improve the detail and accuracy of the
+        fractal, it also increases computation time. Balancing between detail
+        and performance ensures smooth real-time rendering.
+      </p>
+      <p>
+        <strong>Efficient Data Structures</strong><br />The pixel data is stored
+        in a simple array of unsigned 8-bit integers (sf::Uint8). This approach
+        is both memory-efficient and straightforward for updating pixel colors.
+        Managing this data structure efficiently is crucial to ensure that
+        rendering is fast and responsive.
+      </p>
+      <p>
+        <strong>Avoiding Unnecessary Calculations</strong><br />The Mandelbrot
+        set is recalculated only when the user presses the space bar. This
+        approach prevents redundant calculations during regular window updates,
+        thereby conserving computational resources. By recalculating only on
+        user input, the program avoids unnecessary processing, maintaining a
+        smooth user experience.
+      </p>
+    </main>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        renderMathInElement(document.body, {
+          // Optional: Add custom options here
+          delimiters: [
+            { left: "\\(", right: "\\)", display: false },
+            { left: "\\[", right: "\\]", display: true },
+          ],
+        });
+      });
+    </script>
+  </body>
+</html>
